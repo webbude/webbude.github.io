@@ -5,6 +5,7 @@ html{
 body {
   overflow: hidden;
   font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
 }
   
   canvas{
