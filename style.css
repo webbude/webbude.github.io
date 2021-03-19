@@ -1,0 +1,33 @@
+html{
+    background: white;
+    background-size: cover;
+  }
+body {
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+  canvas{
+    z-index: 2;
+  }
+  
+  .text{
+    text-align: center;
+    color:#efefef;
+    width: 100%;
+    top:0;
+    left:0;
+    bottom:0;
+    right:0;
+    position: absolute;
+  }
+  .text p {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    font-size: 20vw;
+  }
