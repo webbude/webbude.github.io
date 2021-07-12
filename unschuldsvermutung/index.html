@@ -20,13 +20,16 @@
             margin: 0;
             padding: 0;
             text-align: center;
-            background: gold;
+            background: #94802e;
             color: gold;
             font-size: 18px;
+            /*text-shadow: 0px 0px 1px grey;*/
         }
         h1 {
             color:gold;
             font-weight: 600;
+            margin-top: 10px;
+            text-shadow: 0px 0px 3px black;
         }
         .container {
             max-width: 1080px;
@@ -42,13 +45,30 @@
             left:0;
             right:0;
             top:150px; */
+            margin-top: 10px;
             max-width: 90%;
             margin-bottom: 30px;
             max-height: 900px;
+            box-shadow: rgba(0, 0, 0, 0.7) 0px 5px 15px;
+        }
+        #nochnicht {
+            position:absolute;
+            margin-top: 20px;
+            left:0px;
+            right:0px;
+            display: none;
+        }
+        #nochnicht h5 {
+            background: gold;
+            color: red;
+            margin:0 auto;
+            padding: 5px 10px;
+            display: inline-block;
         }
         .schei {
             max-width: 50px;
             max-height: 50px;
+            touch-action: none
         }
         .schei.original {
             cursor:pointer;
@@ -67,11 +87,17 @@
             display: inline-block;
             max-width: 200px;
             height: 45px;
+            box-shadow: rgba(0, 0, 0, 0.7) 0px 5px 15px;
+        }
+        #unschuldsvermutung {
+            border: 2px solid #d7d2a0;
         }
    
 
         .schei_cont {
             display: inline-block;
+            font-size: 16px;
+            line-height: 18px;
         } 
         #control {
            display: inline-block;
@@ -85,13 +111,19 @@
             padding: 5px;
         }
         #info_button {
-            font-size: 30px; 
-            line-height: 30px; 
+            font-size: 20px; 
+            line-height: 20px; 
             font-weight: 900; 
             
-            height:60px; 
+            height:40px; 
             border-radius: 30px; 
             padding: 3px 5px 6px 5px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }   
+        .btn {
+            border: 2px solid #66613b;
+	        box-shadow: rgba(0, 0, 0, 0.7) 0px 5px 15px;
         }
         .score {
             color: gold;
@@ -100,8 +132,8 @@
         }
         .offcanvas {
             text-align: left;
-            background:rgb(5, 124, 55);
-            height: 60%;
+            background:rgb(65, 64, 31);
+            height: 90%;
         }
         
         @media (min-width: 992px) {
@@ -109,17 +141,62 @@
                 max-width: 80px;
                 max-height: 80px;
             }
+            .offcanvas {
+                height: 60%;
+            }
+
         }
+        @media (max-width: 500px) {
+            h1 {
+                font-size: 25px;
+            }
+            .schei {
+                max-width: 35px;
+                max-height: 35px;
+            }
+            .btn {
+                height: 35px !important;
+                
+            }
+            #info_button {
+                font-size: 12px;
+            }
+            #img_input {
+                font-size:12px;
+                max-width: 100px !important;
+                padding: 5px; 
+            }
+            #unschuldsvermutung {
+                max-width: 100px !important;
+            }
+            #control button {
+                font-size: 14px;
+                width:25px;
+                height:25px;
+            }
+            .schei_cont {
+                font-size: 14px;
+            }
+            .score {
+                font-size: 20px;
+            }
+        }
+
+        
     </style>
   </head>
-  <body class="bg-success">
+  <body class="">
     
     <div class="container ">
-        <h1 class="d-inline" style="margin-right: 20px;">Unschuldsvermutung</h1>&nbsp; 
-        <button  id="info_button" class="btn btn-primary btn-lg d-inline" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop" title="Hilfe, Info!">ⓘ Anleitung!</button> 
-          
         <div class="row">
-            
+            <div class="col-8 text-left" style="text-align: left;">
+                <h1 class="d-inline">Unschuldsvermutung</h1>
+            </div>
+            <div class="col-4">
+                <button  id="info_button" class="btn btn-warning  btn-lg d-inline" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop" title="Hilfe, Info!">ⓘ Anleitung!</button> 
+            </div>
+        </div>
+        <div class="row">
             <div class="img_input col">
                 <input type="file" id="img_input"  class="btn btn-warning" title="Anderes Bild laden" />
                 <canvas id="upload" style="display: none;"></canvas>
@@ -130,11 +207,9 @@
                 <button class="scale_up btn btn-warning">+</button>
                 <button class="scale_down btn btn-warning">-</button>
             </div>
-            
             <div class="col">
                 <button id="screenshot" class="btn btn-warning" title="screenshot">📷 Foto</button> 
             </div>
-
         </div>
         <div class="row">   
             <div class="audio col">
@@ -144,27 +219,20 @@
                 </audio>
             </div>
             <div class="schei_cont col" class="Scheiße zum drapieren">
-                Scheiße: 
-                <img class="schei original" id="schei_1" src="schei_1.png" style="left: 200px;" />
-
-                <img class="schei original" id="schei_2" src="schei_2.png" style="left: 400px;" />
-
-                <img class="schei original" id="schei_3" src="schei_3.png" style="left: 600px;" />
+                ▼ zum Scheißen ▼<br /> 
+                <img class="schei original" id="schei_1" src="schei_1.png" />
+                <img class="schei original" id="schei_2" src="schei_2.png" />
+                <img class="schei original" id="schei_3" src="schei_3.png" />
             </div>
-            
-
-           
             <div class="col score">
                 Score: <span id="score">0</span>
             </div>
-            
         </div>
     </div>
+    <div id="nochnicht"><h5>Bitte die Scheiße nur während des Refrains plazieren!</h5></div>
     <img id="kopf" src="kopf_1.png" />
     
-    
-
-    <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+<div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
         <div class="offcanvas-header">
             <h5 id="offcanvasTopLabel">Spielanleitung!</h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -172,15 +240,14 @@
         <div class="offcanvas-body">
             <p>
                 
-                Bitte horche dir das Lied an, ab dem <b>Refrai</b> kannst du die Scheiße auf das Bild ziehen.<br />
+                Bitte horche dir das Lied an, ab dem <b>Refrain</b> kannst du die Scheiße auf das Bild ziehen.<br />
                 Das Bild kann auch ausgetauscht werden, zu diesem Zweck nutze den Fileupload Button.
                 <br />
                 Scheiße plazieren funktioniert wie folgt:<br />
-                Zuerst eine Scheiße am oberen Rand vom Bild aktivieren, die aktive Scheiße kann nun vergößert, verkleinert, gedreht und plaziert werden. 
+                Zuerst eine Scheiße am oberen Rand vom Bild anklicken, sie ist dann aktiviert, die aktive Scheiße kann nun vergößert, verkleinert, gedreht und plaziert werden. 
             </p>
             <p>
-                
-                Am Schluss kann man noch ein Erinnerungsfoto anfertigen. (Ein Screenshot funktioniert besser!)<br />
+                Am Schluss kann man noch ein Erinnerungsfoto anfertigen. (Ein echter Screenshot funktioniert besser!)<br />
                 Viel Spass!
 
             </p>
@@ -292,7 +359,13 @@
         
         function activateSchei(el) {
             //isPlaying=true;
-            if(!isPlaying) return;
+            if(!isPlaying) { 
+                $('#nochnicht').fadeIn(function(){
+                    setTimeout(function(){$('#nochnicht').fadeOut()},3000);
+                });
+                
+                return;
+            }
             var off = el.offset();
             var cl = null;
             if(el.hasClass('original')) {
