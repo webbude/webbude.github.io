@@ -7,10 +7,14 @@
     var hasi = new Audio('hasi.mp3');
     
     $( document ).ready(function() {
+        var wir_sagen = $('#wir_sagen')[0];
         $('body').on('mousedown touchstart',function(){
           $(this).addClass('auf');
           hasi.currentTime = 0;
           hasi.play(); 
+          if(wir_sagen.currentTime == 0) {
+            wir_sagen.play();
+          }
         });
          $('body').on('mouseup touchend',function(){
           $(this).removeClass('auf');
@@ -36,18 +40,19 @@
         background-image: url('mund_auf.png');
      }
      audio {
-       width: 200px;
+       width: 300px;
        display: block;
        margin:5px auto;
      }
      h1 {
        color: white;
+       font-size: 4rem;
      }
   </style>
   <title>Hasi im Advent</title>
   </head>
   <body>
-     <audio controls>
+     <audio id="wir_sagen" controls>
       <source src="wir_sagen_euch.mp3" type="audio/mpeg">
     </audio> 
     <h1>click und sing mit</h1>
