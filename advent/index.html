@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+  <script>
+    var hasi = new Audio('hasi.mp3');
+    
+    $( document ).ready(function() {
+        $('body').on('mousedown touchstart',function(){
+          $(this).addClass('auf');
+          hasi.currentTime = 0;
+          hasi.play(); 
+        });
+         $('body').on('mouseup touchend',function(){
+          $(this).removeClass('auf');
+          hasi.pause();
+        });
+    });
+  </script>
+  <style>
+     html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+     }
+     body {
+        background-image: url('mund_zu.png');
+        background-color: #214106;
+        background-repeat: no-repeat;
+        background-position: center; 
+        background-size: contain;
+        text-align: center;
+     }
+     body.auf {
+        background-image: url('mund_auf.png');
+     }
+     audio {
+       width: 200px;
+       display: block;
+       margin:5px auto;
+     }
+     h1 {
+       color: white;
+     }
+  </style>
+  <title>Hasi im Advent</title>
+  </head>
+  <body>
+     <audio controls>
+      <source src="wir_sagen_euch.mp3" type="audio/mpeg">
+    </audio> 
+    <h1>click und sing mit</h1>
+  </body>
+</html>
