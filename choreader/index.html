@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Song reader</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <style>
+      body {
+        font-size: 20px;
+        margin-left: 5px;
+        margin-right: 5px;
+      }
+      #load_file {
+        width: 60%;
+      }
+      #bag ul>li
+      {
+        display: none;
+      }
+      
+      #bag ul>li .nr,
+      #bag ul>li .songtitle {
+        font-size: 1.5rem;
+        font-weight: bold;
+        padding-right: 1rem;
+      }
+      
+      #bag ul>li.active {
+        display: block;
+      }
+      .song_container {
+        position: fixed;
+        top:70px;
+        left:10px;
+        bottom: 20px;
+        right:10px;
+      }
+      .song_container .txt {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+      }
+      body.liststyle #bag ul>li{
+        display: block;
+      }
+      body.liststyle #bag .song_container,
+      body.liststyle #steuer {
+        display: none;
+      }
+      .akkord {
+        display: inline-block;
+        position: relative;
+      }
+      .akkord span {
+        position: absolute;
+        top:-30px;
+        left: 1px;
+        font-weight:bold;
+        background-color:rgba(251, 255, 29, 0.5);
+        border: 1px dotted #ccc;
+        line-height: 0.7rem;
+      }
+      .info {
+        font-size: 0.7rem;
+      }
+      /*
+      .info.title { 
+        font-size: 2rem; 
+      }
+      */
+      .start_of_verse,
+      .start_of_chorus {
+        font-size: 1.5rem;
+        background-color: rgba(50, 184, 40, 0.5);
+      }
+      
+      #steuer .top{
+        position: fixed;
+        top:35px;
+        left:0px;
+        width:100%;
+        height: 20%;
+        z-index: 99;
+      }
+      #steuer .bottom{
+        position: fixed;
+        bottom:0;
+        left:0px;
+        width:100%;
+        height: 20%;
+        z-index: 99;
+      }
+      #steuer .left{
+        position: fixed;
+        top:30%;
+        left:0px;
+        width:30%;
+        height: 40%;
+        z-index: 99;
+      }
+      #steuer .right{
+        position: fixed;
+        right:0;
+        top:30%;
+        width:30%;
+        height: 40%;
+        z-index: 99;
+      }
+    </style>
+  </head>
+  <body>
+    <input id="load_file" type="file" class="form-control d-inline-block"  value="open" multiple>
+    <button id="liststyle" type="button" class="btn btn-light">Liste</button>
+    <button id="allesweg" type="button" class="btn btn-light">Alle löschen</button>
+    <div id="bag">
+      <ul></ul>
+    </div>
+
+    <div id="steuer">
+      <div class="top"></div>
+      <div class="right"></div>
+      <div class="bottom"></div>
+      <div class="left"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.min.js" integrity="sha256-AlTido85uXPlSyyaZNsjJXeCs07eSv3r43kyCVc8ChI=" crossorigin="anonymous"></script>
+  </body>
+</html>
+<script>
+    var ul = $("#bag>ul");
+   
+    $('#load_file').on("change", function(event){ readmultifiles(event.target.files) });
+
+    $("#bag>ul").html(localStorage.getItem("liedermappe"));
+    
+    setClickEvents();
+   
+    function readmultifiles(files) { 
+        
+
+
+        while (ul.children().length > 0) {
+            ul.children(":first").remove();
+        }
+        // Read first file
+        setup_reader(files, 0);
+    }
+
+    // Don't define functions in functions in functions, when possible.
+
+    function setup_reader(files, i) {
+        var file = files[i];
+        var name = file.name;
+        console.log(name.split('.').pop());
+        if(name.split('.').pop() !='cho') {
+          return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e){
+                            readerLoaded(e, files, i, name);
+                        };
+        reader.readAsText(file);
+        // After reading, read the next file.
+    }
+
+    function readerLoaded(e, files, i, name) {
+        var song = e.target.result; 
+        song = song.replace(/\n/g,'<br>') ; 
+        song = song.replace(/{/g,'</leer><span class="info">');
+        song = song.replace(/}/g,'</span><leer>');
+        song = song.replace(/\[/g,'<span class="akkord"><span>');
+        song = song.replace(/\]/g,'</span></span>');
+       
+        
+        var li = $('<li filename="'+name+'"><span class="nr"></span><span class="songtitle">'+name+'<button type="button" class="btn btn-light dasweg">X</button></span><div class="song_container"><div class="txt">'+song+'</div></div></li>');
+        li.find('leer').each(function(){
+          var html = $(this).html().replace(/<br>/g, '');
+          html=html.replace(/(\r\n|\n|\r)/gm, "");
+          if(html == '') {
+            $(this).remove();
+          }
+        });
+
+        li.find('.info').each(function(){
+            let inner = $(this).html();           
+            let infoSplit = inner.split(':');
+            //console.log(infoSplit);
+            $(this).addClass(infoSplit[0]);    
+            if(infoSplit.length > 1) {   
+              $(this).html(infoSplit[1]);
+            }
+            else {
+              //console.log(infoSplit[0]);
+              if(infoSplit[0] == 'start_of_chorus'){
+                $(this).html('Chorus');
+              }
+              else {
+                $(this).html('');
+              }
+            }
+            
+        });
+
+        $(ul).append(li);
+
+        // If there's a file left to load
+        if (i < files.length - 1) {
+            // Load the next file
+            setup_reader(files, i+1);
+        }
+        else {
+          $('#bag ul>li:first-child').addClass('active');
+          $('#bag ul>li .song_container').scrollTop(0);
+          
+          localStorage.setItem("liedermappe", $("#bag>ul").html());
+
+          setClickEvents();
+        }
+    }
+
+    $('#steuer>div').click(function(){
+      //var active_song = $('#bag ul>li.active .song_container .txt');
+      var offs = $('#bag ul>li.active .song_container .txt').offset().top-$('#bag ul>li.active .song_container').offset().top+$('#bag ul>li.active .song_container .txt').scrollTop();
+      switch($(this).attr('class')){
+        case 'left':
+          console.log('left');
+          if(!$('#bag ul>li.active').is(':first-child')){
+            $('#bag ul>li.active').toggleClass('active').prev().toggleClass('active');   
+          } 
+        
+          break;
+        case 'right':
+          console.log('right');
+          if(!$('#bag ul>li.active').is(':last-child')){
+            $('#bag ul>li.active').toggleClass('active').next().toggleClass('active');   
+          } 
+        
+          break;
+        case 'top':
+          $('#bag ul>li.active .song_container .txt').animate({
+              scrollTop: offs-400
+          }, 1000);
+          break;
+        case 'bottom':
+          $('#bag ul>li.active .song_container .txt').animate({
+              scrollTop: offs+400
+          }, 1000);
+          break;
+      } 
+    });
+
+    function setClickEvents(){
+      $('.dasweg').unbind().click(function(){ $(this).closest('li').remove(); });
+      var nummer = 1
+      $("#bag>ul>li").each(function(){
+        $(this).find('.nr').html(nummer);
+        nummer++;
+      });
+      $( "#bag > ul").sortable({
+        stop: function( event, ui ) {setClickEvents();}
+      });
+    }
+
+    $('#liststyle').click(function(){
+      $('body').toggleClass('liststyle');
+    });
+
+    $('#allesweg').click(function(){
+      $("#bag>ul").html('');
+    });
+
+</script>
+
