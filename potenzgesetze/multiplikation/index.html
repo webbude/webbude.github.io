@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Potenz-Visualisierer mit Meilensteinen</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 1200px; text-align: center; }
+        
+        .controls { background: #eef2f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: center; gap: 25px; align-items: center; }
+        .control-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        input[type="number"] { width: 60px; padding: 8px; border: 1px solid #3498db; border-radius: 4px; text-align: center; font-weight: bold; font-size: 16px; }
+        
+        .formula { font-size: 32px; margin-bottom: 25px; color: #2c3e50; }
+        .exp { vertical-align: super; font-size: 20px; color: #e74c3c; font-weight: bold; }
+
+        .viz-container { display: flex; flex-direction: column; gap: 40px; }
+        .factors { display: flex; justify-content: center; align-items: flex-start; gap: 40px; }
+        
+        .result-area { display: flex; flex-direction: row; flex-wrap: wrap; gap: 30px; justify-content: center; background: #fff; padding: 20px; }
+
+        /* Säulen-Layout mit Platz für Beschriftung */
+        .column-wrapper { display: flex; align-items: flex-start; position: relative; }
+        .grid { display: grid; gap: 2px; }
+        .stone { border-radius: 2px; }
+        
+        /* Markierungen am Rand */
+        .milestone {
+            position: absolute;
+            left: 100%;
+            margin-left: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #e74c3c;
+            white-space: nowrap;
+            /*border-bottom: 1px solid #e74c3c;*/
+            line-height: 1;
+            padding-right: 3px;
+            padding-top: 10px;
+        }
+
+        .label { font-size: 15px; font-weight: bold; color: #7f8c8d; margin-bottom: 10px; }
+        .operator { font-size: 45px; color: #bdc3c7; align-self: center; margin-top: 25px; }
+        
+        button { background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #2980b9; }
+
+        @media print { .controls, button { display: none; } body { background: white; } .card { box-shadow: none; } }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="controls">
+        <div class="control-group"><label>Basis a</label><input type="number" id="base" value="3" min="1" max="20"></div>
+        <div class="control-group"><label>Exp. n</label><input type="number" id="expN" value="2" min="0" max="10"></div>
+        <div class="control-group"><label>Exp. m</label><input type="number" id="expM" value="1" min="0" max="10"></div>
+        <button onclick="render()">Aktualisieren</button>
+    </div>
+
+    <div class="formula" id="formula"></div>
+
+    <div class="viz-container">
+        <div class="factors">
+            <div id="f1-wrap" class="column-wrapper">
+                <div style="display:flex; flex-direction:column;">
+                    <div class="label" id="l1"></div>
+                    <div id="g1" class="grid"></div>
+                </div>
+            </div>
+            <div class="operator">&sdot;</div>
+            <div id="f2-wrap" class="column-wrapper">
+                <div style="display:flex; flex-direction:column;">
+                    <div class="label" id="l2"></div>
+                    <div id="g2" class="grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="border-top: 2px solid #f0f4f8; padding-top: 20px;">
+            <div class="label" id="result-label">Ergebnis</div>
+            <div id="result-columns" class="result-area"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function getStoneColor(index, base) {
+    let level = 1;
+    while (index >= Math.pow(base, level)) { level++; }
+    const lightness = 20 + (level * 8); 
+    return `hsl(210, 80%, ${lightness}%)`;
+}
+
+function render() {
+    const a = parseInt(document.getElementById('base').value) || 1;
+    const n = parseInt(document.getElementById('expN').value) || 0;
+    const m = parseInt(document.getElementById('expM').value) || 0;
+    const fixedMaxHeight = 25; 
+    const sSize = 16; 
+    const gap = 2;
+
+    const vt = Math.pow(a, n + m);
+    document.getElementById('formula').innerHTML = `${a}<span class="exp">${n}</span> &sdot; ${a}<span class="exp">${m}</span> = ${a}<span class="exp">(${n}+${m})</span> = ${vt.toLocaleString()}`;
+    document.getElementById('result-label').innerHTML = `Ergebnis: <strong>${vt.toLocaleString()}</strong> Steine`;    
+    
+    drawGrid('g1', 'l1', Math.pow(a, n), a, `${a}^${n}`, sSize, 'f1-wrap');
+    drawGrid('g2', 'l2', Math.pow(a, m), a, `${a}^${m}`, sSize, 'f2-wrap');
+    
+    const resultArea = document.getElementById('result-columns');
+    resultArea.innerHTML = '';
+
+    let currentTotal = 0;
+    while (currentTotal < vt && vt <= 20000) {
+        let stonesInCol = Math.min(fixedMaxHeight * a, vt - currentTotal);
+        const wrap = document.createElement('div');
+        wrap.className = 'column-wrapper';
+        
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        grid.style.gridTemplateColumns = `repeat(${a}, ${sSize}px)`;
+        
+        for (let j = 0; j < stonesInCol; j++) {
+            const globalIdx = currentTotal + j;
+            const s = document.createElement('div');
+            s.className = 'stone';
+            s.style.width = s.style.height = sSize + 'px';
+            s.style.backgroundColor = getStoneColor(globalIdx, a);
+            grid.appendChild(s);
+
+            // Prüfen, ob dieser Stein genau ein Meilenstein (a^x) ist
+            for (let e = 1; e <= (n + m); e++) {
+                if (globalIdx === Math.pow(a, e) - 1) {
+                    const mark = document.createElement('div');
+                    mark.className = 'milestone';
+                    // Position berechnen: Zeile im Grid * (Größe + Gap)
+                    const row = Math.floor(j / a);
+                    mark.style.top = (row * (sSize + gap) + 25) + 'px'; // +25 für das Label oben
+                    mark.innerHTML = `a^<sup>${e}</sup>`;
+                    wrap.appendChild(mark);
+                }
+            }
+        }
+        wrap.appendChild(grid);
+        resultArea.appendChild(wrap);
+        currentTotal += stonesInCol;
+    }
+}
+
+function drawGrid(gridId, labelId, count, base, labelText, sSize, wrapId) {
+    const grid = document.getElementById(gridId);
+    const wrap = document.getElementById(wrapId);
+    document.getElementById(labelId).innerText = labelText;
+    grid.innerHTML = '';
+    // Bestehende Meilensteine im Wrap entfernen
+    wrap.querySelectorAll('.milestone').forEach(m => m.remove());
+    
+    grid.style.gridTemplateColumns = `repeat(${base}, ${sSize}px)`;
+    for(let i=0; i<count; i++) {
+        const s = document.createElement('div');
+        s.className = 'stone';
+        s.style.width = s.style.height = sSize + 'px';
+        s.style.backgroundColor = getStoneColor(i, base);
+        grid.appendChild(s);
+
+        for (let e = 1; e <= 10; e++) {
+            if (i === Math.pow(base, e) - 1) {
+                const mark = document.createElement('div');
+                mark.className = 'milestone';
+                mark.style.top = (Math.floor(i / base) * (sSize + 2) + 25) + 'px';
+                mark.innerHTML = `a^<sup>${e}</sup>`;
+                wrap.appendChild(mark);
+            }
+        }
+    }
+}
+render();
+</script>
+
+</body>
+</html>
